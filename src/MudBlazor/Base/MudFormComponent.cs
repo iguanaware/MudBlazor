@@ -24,7 +24,9 @@ namespace MudBlazor
             _converter.OnError = OnConversionError;
         }
 
-        [CascadingParameter] internal IForm Form { get; set; }
+        [CascadingParameter] internal IForm Form { get => _form; 
+            set => _form = value;
+        }
 
         /// <summary>
         /// If true, this is a top-level form component. If false, this input is a sub-component of another input (i.e. TextField, Select, etc).
@@ -362,7 +364,7 @@ namespace MudBlazor
         {
             try
             {
-                if (Form==null)
+                if (Form == null)
                 {
                     errors.Add("Form is null, unable to validate with model!");
                     return;
@@ -430,6 +432,8 @@ namespace MudBlazor
         {
             try
             {
+                if (Form is null)
+                    throw new ArgumentNullException($"{nameof(Form)} is null at {nameof(ValidateModelWithFullPathOfMember)}");
                 foreach (var error in await func(Form.Model, For.GetFullPathOfMember()))
                     errors.Add(error);
             }
@@ -533,6 +537,7 @@ namespace MudBlazor
         /// </summary>
 #nullable enable
         private EditContext? _currentEditContext;
+        private IForm _form;
 #nullable disable
 
         protected override void OnParametersSet()
